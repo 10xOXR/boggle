@@ -48,17 +48,20 @@ def all_grid_neighbours(grid):
 
 def path_to_word(grid, path):
     # Add all of the letters in a path to a string
-    return ''.join(grid[p] for p in path)
+    return ''.join([grid[p] for p in path])
 
 def search(grid, dictionary):
     # Searches through the paths to locate words by matching strings to words in a dictionary
     neighbours = all_grid_neighbours(grid)
     paths = []
+    full_words, stems = dictionary
 
     def do_search(path):
         word = path_to_word(grid, path)
-        if word in dictionary:
+        if word in full_words:
             paths.append(path)
+        if word not in stems:
+            return
         for next_pos in neighbours[path[-1]]:
             if next_pos not in path:
                 do_search(path + [next_pos])
@@ -73,17 +76,32 @@ def search(grid, dictionary):
 
 def get_dictionary(dictionary_file):
     # Loads a dictionary file
+    full_words, stems = set(), set()
+
     with open(dictionary_file) as f:
-        return [w.strip().upper() for w in f]
+        for word in f:
+            word = word.strip().upper()
+            full_words.add(word)
+
+            for i in range(1, len(word)):
+                stems.add(word[:i])
+            
+    return full_words, stems
 
 def display_words(words):
+    """
     for word in words:
         print(word)
     print("Found %s words" % len(words))
+    """
+    with open('foundwords.txt', 'w+') as f:
+        for word in words:
+            f.write(word + "\n")
+        f.write("Found %s words" % len(words))
 
 def main():
     # This is the function that will run the whole project
-    grid = make_grid(3, 3)
+    grid = make_grid(50, 50)
     dictionary = get_dictionary('words.txt')
     words = search(grid, dictionary)
     display_words(words)

@@ -69,7 +69,7 @@ def search(grid, dictionary):
     words = []
     for path in paths:
         words.append(path_to_word(grid, path))
-    return set(words)
+    return sorted(set(words))
 
 def get_dictionary(dictionary_file):
     # Loads a dictionary file
